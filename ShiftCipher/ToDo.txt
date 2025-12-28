@@ -1,0 +1,3 @@
+##To Do
+ - [ ] add new line when displaying cipher text
+ - [ ] when using k 3 output is blank
