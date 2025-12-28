@@ -28,7 +28,7 @@ section .text
 		mov edx, msgBuffer_len
 		int 80h
 		mov esi, eax ;save number of bytes read
-		xor ecx, ecx
+
 	requestK:
 		;stdout message requesting K
 		mov eax, 4
@@ -36,17 +36,18 @@ section .text
 		mov ecx, kMsg
 		mov edx, kMsgLength
 		int 80h
-		movzx eax, byte [kBuffer]
-		sub eax, '0'
-		mov bl, al
+
 	inputK:
 		;grab stdin for k and push to stack
 		mov eax, 3
 		mov ebx, 0
 		mov ecx, kBuffer
-		mov edx, kBuffer_len
+		mov edx, 1
 		int 80h
-		mov ecx, ecx
+		movzx eax, byte [kBuffer]
+		sub eax, '0'
+		mov bl, al
+		xor ecx, ecx
 	encryptMsg:
 		cmp ecx, esi ;compare counter with buffer length (esi)
 		jge outputCiphertext
@@ -62,14 +63,14 @@ section .text
 			add al, bl ;al += k
 			cmp al, 'Z'+1 ;overflow?
 			jl storeChar
-			sub al, 25 ;wrap: 'Z'+1 -> 'A'
+			sub al, 26 ;wrap: 'Z'+1 -> 'A'
 			jmp storeChar
 		
 		notUpper:
 			add al, bl
 			cmp al, 'z'+1
 			jl storeChar
-			sub al,25
+			sub al,26
 			jmp storeChar
 		
 		storeChar:
@@ -78,8 +79,6 @@ section .text
 		pop ecx ;restore loop counter
 		inc ecx
 	jmp encryptMsg
-	
-	
 	
 	outputCiphertext:
 		mov eax, 4
